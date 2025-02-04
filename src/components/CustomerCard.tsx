@@ -37,9 +37,9 @@ export function CustomerCard({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white break-words">
-              {customer.name}
-            </h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
+  {customer.name}
+</h3>
             <a
               href={`tel:${customer.phone}`}
               className="flex items-center text-base text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors mt-1"
