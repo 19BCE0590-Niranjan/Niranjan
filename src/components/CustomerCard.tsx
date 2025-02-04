@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pencil, Trash2, Phone, PlusCircle } from 'lucide-react';
+import { Edit3, XCircle, Phone, ShoppingCart } from 'lucide-react';
 import { Customer } from '../types/customer';
 import { Order } from '../types/order';
 import { StatusBadge } from './StatusBadge';
@@ -37,9 +37,9 @@ export function CustomerCard({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate max-w-[180px]">
-  {customer.name}
-</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis">
+              {customer.name}
+            </h3>
             <a
               href={`tel:${customer.phone}`}
               className="flex items-center text-base text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors mt-1"
@@ -48,27 +48,27 @@ export function CustomerCard({
               {customer.phone}
             </a>
           </div>
-          <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center space-x-2 opacity-100 transition-opacity">
             <button
               onClick={() => onAddOrder(customer)}
               className="p-2.5 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/50 rounded-lg transition-colors"
-              title="Add order"
+              title="Add Order"
             >
-              <PlusCircle className="h-5 w-5" />
+              <ShoppingCart className="h-5 w-5" />
             </button>
             <button
               onClick={() => onEdit(customer)}
               className="p-2.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 rounded-lg transition-colors"
-              title="Edit customer"
+              title="Edit Customer"
             >
-              <Pencil className="h-5 w-5" />
+              <Edit3 className="h-5 w-5" />
             </button>
             <button
               onClick={() => onDelete(customer)}
               className="p-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50 rounded-lg transition-colors"
-              title="Delete customer"
+              title="Delete Customer"
             >
-              <Trash2 className="h-5 w-5" />
+              <XCircle className="h-5 w-5" />
             </button>
           </div>
         </div>
