@@ -37,7 +37,7 @@ export function CustomerCard({
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white break-words">
               {customer.name}
             </h3>
             <a
