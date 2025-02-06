@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Plus, Minus, Calendar, IndianRupee } from 'lucide-react';
 import { Customer } from '../types/customer';
 import { Order, OrderItem, OrderStatus, ItemType, PaymentStatus } from '../types/order';
 
@@ -27,7 +27,6 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
 
   useEffect(() => {
     if (order) {
-      // Initialize with existing order data
       const existingItems = ['shirt', 'pants', 'other'].map((type) => {
         const item = order.items?.find((i) => i.item_type === type);
         return item || { item_type: type as ItemType, quantity: 0, status: 'not_started' as OrderStatus, price: 0 };
@@ -38,7 +37,6 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
       setAmountPaid(order.amount_paid);
       setNotes(order.notes || '');
     } else {
-      // Reset form for new order
       setItems([
         { item_type: 'shirt', quantity: 0, status: 'not_started', price: 0 },
         { item_type: 'pants', quantity: 0, status: 'not_started', price: 0 },
@@ -51,9 +49,10 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
     }
   }, [order]);
 
-  const handleQuantityChange = (index: number, quantity: number) => {
+  const handleQuantityChange = (index: number, change: number) => {
     const newItems = [...items];
-    newItems[index] = { ...newItems[index], quantity };
+    const newQuantity = Math.max(0, (newItems[index].quantity || 0) + change);
+    newItems[index] = { ...newItems[index], quantity: newQuantity };
     setItems(newItems);
   };
 
@@ -77,13 +76,11 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
     const totalAmount = calculateTotalAmount();
     setPaymentStatus(status);
     
-    // Set amount paid based on payment status
     if (status === 'paid') {
       setAmountPaid(totalAmount);
     } else if (status === 'unpaid') {
       setAmountPaid(0);
     }
-    // For partial_payment, keep the current amount_paid
   };
 
   const handleAmountPaidChange = (amount: number) => {
@@ -91,7 +88,6 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
     const validAmount = Math.min(Math.max(0, amount), totalAmount);
     setAmountPaid(validAmount);
 
-    // Update payment status based on amount paid
     if (validAmount === 0) {
       setPaymentStatus('unpaid');
     } else if (validAmount === totalAmount) {
@@ -123,91 +119,145 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
   const amountPending = totalAmount - amountPaid;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+        {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-            {order ? 'Edit Order' : 'New Order'} - {customer.name}
-          </h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+              {order ? 'Edit Order' : 'New Order'}
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">{customer.name}</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+            className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Items</h3>
-            {items.map((item, index) => (
-              <div key={index} className="grid grid-cols-4 gap-4 items-center">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    {item.item_type?.charAt(0).toUpperCase()}{item.item_type?.slice(1)} Quantity
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={item.quantity || 0}
-                    onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 0)}
-                    className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                  />
+        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+          {/* Order Items Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              Order Items
+            </h3>
+            
+            <div className="space-y-4">
+              {items.map((item, index) => (
+                <div 
+                  key={index}
+                  className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl space-y-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-base font-medium text-gray-900 dark:text-white capitalize">
+                      {item.item_type}
+                    </h4>
+                    <div className="flex items-center space-x-2">
+                      <select
+                        value={item.status}
+                        onChange={(e) => handleStatusChange(index, e.target.value as OrderStatus)}
+                        className="text-sm rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="not_started">Not Started</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="delivered">Delivered</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Quantity
+                      </label>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(index, -1)}
+                          className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
+                        <input
+                          type="number"
+                          min="0"
+                          value={item.quantity || 0}
+                          onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) - (item.quantity || 0))}
+                          className="block w-20 text-center rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(index, 1)}
+                          className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Price
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <IndianRupee className="h-4 w-4 text-gray-400" />
+                        </div>
+                        <input
+                          type="number"
+                          min="0"
+                          value={item.price || 0}
+                          onChange={(e) => handlePriceChange(index, parseInt(e.target.value) || 0)}
+                          className="block w-full pl-8 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Subtotal
+                      </label>
+                      <div className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                        <IndianRupee className="h-4 w-4 mr-1" />
+                        {(item.quantity || 0) * (item.price || 0)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Price (₹)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={item.price || 0}
-                    onChange={(e) => handlePriceChange(index, parseInt(e.target.value) || 0)}
-                    className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={item.status}
-                    onChange={(e) => handleStatusChange(index, e.target.value as OrderStatus)}
-                    className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-                  >
-                    <option value="not_started">Not Started</option>
-                    <option value="in_progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="delivered">Delivered</option>
-                  </select>
-                </div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">
-                  Subtotal: ₹{(item.quantity || 0) * (item.price || 0)}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {/* Due Date and Payment Section */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Due Date
               </label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Calendar className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="block w-full pl-10 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Payment Status
               </label>
               <select
                 value={paymentStatus}
                 onChange={(e) => handlePaymentStatusChange(e.target.value as PaymentStatus)}
-                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
               >
                 <option value="unpaid">Unpaid</option>
                 <option value="partial_payment">Partial Payment</option>
@@ -216,61 +266,80 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Total Amount
-              </label>
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                ₹{totalAmount}
+          {/* Payment Details */}
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Payment Details
+            </h3>
+            
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Total
+                </label>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                  <IndianRupee className="h-5 w-5 mr-1" />
+                  {totalAmount}
+                </div>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Amount Paid
-              </label>
-              <input
-                type="number"
-                min="0"
-                max={totalAmount}
-                value={amountPaid}
-                onChange={(e) => handleAmountPaidChange(parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Amount Pending
-              </label>
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                ₹{amountPending}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Amount Paid
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <IndianRupee className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    max={totalAmount}
+                    value={amountPaid}
+                    onChange={(e) => handleAmountPaidChange(parseFloat(e.target.value) || 0)}
+                    className="block w-full pl-8 rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white text-lg"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Pending
+                </label>
+                <div className="text-2xl font-bold text-red-600 dark:text-red-400 flex items-center">
+                  <IndianRupee className="h-5 w-5 mr-1" />
+                  {amountPending}
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Notes */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Notes
+              Notes (Optional)
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              className="block w-full rounded-lg border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white sm:text-sm"
+              rows={2}
+              className="block w-full rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+              placeholder="Add any special instructions or notes here..."
             />
           </div>
 
-          <div className="flex justify-end space-x-3">
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+              className="px-6 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 border-2 border-red-600 dark:border-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+              className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
             >
               {order ? 'Update Order' : 'Create Order'}
             </button>
