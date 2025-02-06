@@ -119,28 +119,28 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
   const amountPending = totalAmount - amountPaid;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-start sm:items-center justify-center p-0 sm:p-4 z-50">
+      <div className="bg-white dark:bg-gray-800 w-full h-full sm:h-auto sm:rounded-2xl sm:w-full sm:max-w-2xl sm:max-h-[90vh] overflow-y-auto shadow-xl">
+        {/* Header - Made sticky */}
+        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 flex justify-between items-center p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
               {order ? 'Edit Order' : 'New Order'}
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">{customer.name}</p>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1">{customer.name}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-6 sm:space-y-8">
           {/* Order Items Section */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+          <div className="space-y-4 sm:space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Order Items
             </h3>
             
@@ -148,27 +148,25 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
               {items.map((item, index) => (
                 <div 
                   key={index}
-                  className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-xl space-y-4"
+                  className="bg-gray-50 dark:bg-gray-700/50 p-3 sm:p-4 rounded-xl space-y-3 sm:space-y-4"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <h4 className="text-base font-medium text-gray-900 dark:text-white capitalize">
                       {item.item_type}
                     </h4>
-                    <div className="flex items-center space-x-2">
-                      <select
-                        value={item.status}
-                        onChange={(e) => handleStatusChange(index, e.target.value as OrderStatus)}
-                        className="text-sm rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
-                      >
-                        <option value="not_started">Not Started</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="completed">Completed</option>
-                        <option value="delivered">Delivered</option>
-                      </select>
-                    </div>
+                    <select
+                      value={item.status}
+                      onChange={(e) => handleStatusChange(index, e.target.value as OrderStatus)}
+                      className="w-full sm:w-auto text-sm rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500"
+                    >
+                      <option value="not_started">Not Started</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="delivered">Delivered</option>
+                    </select>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Quantity
@@ -177,7 +175,7 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
                         <button
                           type="button"
                           onClick={() => handleQuantityChange(index, -1)}
-                          className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                          className="p-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
@@ -186,12 +184,12 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
                           min="0"
                           value={item.quantity || 0}
                           onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) - (item.quantity || 0))}
-                          className="block w-20 text-center rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+                          className="block w-full text-center rounded-lg border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
                         />
                         <button
                           type="button"
                           onClick={() => handleQuantityChange(index, 1)}
-                          className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
+                          className="p-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
@@ -220,7 +218,7 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Subtotal
                       </label>
-                      <div className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                      <div className="text-lg font-semibold text-gray-900 dark:text-white flex items-center h-[42px] px-3">
                         <IndianRupee className="h-4 w-4 mr-1" />
                         {(item.quantity || 0) * (item.price || 0)}
                       </div>
@@ -232,7 +230,7 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
           </div>
 
           {/* Due Date and Payment Section */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Due Date
@@ -267,17 +265,17 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
           </div>
 
           {/* Payment Details */}
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 space-y-4">
+          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 sm:p-6 space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Payment Details
             </h3>
             
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Total
                 </label>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center">
                   <IndianRupee className="h-5 w-5 mr-1" />
                   {totalAmount}
                 </div>
@@ -306,7 +304,7 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Pending
                 </label>
-                <div className="text-2xl font-bold text-red-600 dark:text-red-400 flex items-center">
+                <div className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 flex items-center">
                   <IndianRupee className="h-5 w-5 mr-1" />
                   {amountPending}
                 </div>
@@ -328,21 +326,23 @@ export function OrderModal({ isOpen, onClose, onSave, customer, order }: OrderMo
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-4 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 border-2 border-red-600 dark:border-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
-            >
-              {order ? 'Update Order' : 'Create Order'}
-            </button>
+          {/* Action Buttons - Made sticky */}
+          <div className="sticky bottom-0 -mx-4 -mb-4 sm:mx-0 sm:mb-0 p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4">
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 border-2 border-red-600 dark:border-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-6 py-2.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
+              >
+                {order ? 'Update Order' : 'Create Order'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
